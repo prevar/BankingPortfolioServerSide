@@ -67,6 +67,7 @@ async function create(name, email, uid, roles) {
 
   try {
     const users = database.collection("users");
+    console.log("roles before creating ="+roles);
     const doc = {
       name: name,
       email: email,

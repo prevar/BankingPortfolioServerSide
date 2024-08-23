@@ -9,6 +9,7 @@ app.use(cors());
 
 app.get("/", (req, res) => res.send("navigate to URL/login.html!"));
 
+
 /**
  * verifyIdToken - used to verify if the token in the header is valid
  * @param {Request} req
@@ -36,6 +37,51 @@ function verifyIdToken(req, res) {
       res.status(500).send("Authentication error");
     });
 }
+
+
+/**
+ * Find All Users
+ */
+app.get("/account/findAll", function (req, res) {
+  try {
+    dal.findAll().then((users) => {
+      if (users.length <= 0) {
+        res.send({});
+      } else {
+        console.log("in findAll - Num of user" + users.length);
+        res.send(users);
+      }
+    });
+  } catch (err) {
+    console.log("error encoutnered in calling find" + err);
+    res.status(500).send("Internal server error: " + err);
+  }
+});
+
+
+/**
+ * Find user by email
+ */
+app.get("/account/find/:email", function (req, res) {
+  try {
+    // check if account exists
+    dal.find(req.params.email).then((user) => {
+      // if user exists, return error message
+      if (user.length <= 0) {
+        console.log("in find - No User with this email exists");
+        res.send({});
+      } else {
+        // else user exists
+        console.log("in find - user exists");
+        res.send(user);
+      }
+    });
+  } catch (err) {
+    console.log("ERROR encoutnered in calling find" + err);
+    res.status(500).send("Internal server error: " + err);
+  }
+});
+
 
 /**
  * create user account - First check if user email exists . If it does, give error else create.
@@ -81,47 +127,6 @@ app.get(
   }
 );
 
-/**
- * Find user by email
- */
-app.get("/account/find/:email", function (req, res) {
-  try {
-    // check if account exists
-    dal.find(req.params.email).then((user) => {
-      // if user exists, return error message
-      if (user.length <= 0) {
-        console.log("in find - No User with this email exists");
-        res.send({});
-      } else {
-        // else user exists
-        console.log("in find - user exists");
-        res.send(user);
-      }
-    });
-  } catch (err) {
-    console.log("ERROR encoutnered in calling find" + err);
-    res.status(500).send("Internal server error: " + err);
-  }
-});
-
-/**
- * Find All Users
- */
-app.get("/account/findAll", function (req, res) {
-  try {
-    dal.findAll().then((users) => {
-      if (users.length <= 0) {
-        res.send({});
-      } else {
-        console.log("in findAll - Num of user" + users.length);
-        res.send(users);
-      }
-    });
-  } catch (err) {
-    console.log("error encoutnered in calling find" + err);
-    res.status(500).send("Internal server error: " + err);
-  }
-});
 
 /**
  * Update the balance of the user with the specified email and then add transaction to history
@@ -148,6 +153,7 @@ app.get("/account/updateBalance/:email/:changedAmt", async function (req, res) {
     res.status(500).send("Internal server error" + err);
   }
 });
+
 
 /**
  * Transfer specified amount from specified fromUser to toUser . Also add history transactions to fromUser, toUser and the user who made the transfer.
